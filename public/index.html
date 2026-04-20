@@ -4,79 +4,110 @@
   <meta charset="UTF-8">
   <title>YouTube Tool</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #121212;
-      color: #fff;
-      margin: 0;
-      padding: 20px;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #121212;
+  color: #fff;
+  margin: 0;
+  padding: 10px;
+}
 
-    h1 {
-      text-align: center;
-    }
+h1 {
+  text-align: center;
+  font-size: 22px;
+}
 
-    .container {
-      max-width: 900px;
-      margin: auto;
-    }
+/* Container */
+.container {
+  max-width: 900px;
+  margin: auto;
+}
 
-    input {
-      width: 70%;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      margin-right: 10px;
-    }
+/* Input + Button */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      background: #ff0000;
-      color: white;
-      cursor: pointer;
-    }
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+}
 
-    button:hover {
-      background: #cc0000;
-    }
+button {
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #ff0000;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
 
-    .box {
-      background: #1e1e1e;
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 20px;
-    }
+button:hover {
+  background: #cc0000;
+}
 
-    #comments {
-      max-height: 300px;
-      overflow-y: auto;
-    }
+/* Boxen */
+.box {
+  background: #1e1e1e;
+  padding: 12px;
+  border-radius: 12px;
+  margin-top: 15px;
+}
 
-    .comment {
-      border-bottom: 1px solid #333;
-      padding: 8px 0;
-    }
+/* Kommentare */
+#comments {
+  max-height: 300px;
+  overflow-y: auto;
+}
 
-    .author {
-      font-weight: bold;
-      color: #ff5555;
-    }
+.comment {
+  border-bottom: 1px solid #333;
+  padding: 10px 0;
+}
 
-    #transcript {
-      max-height: 400px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      line-height: 1.5;
-    }
+.author {
+  font-weight: bold;
+  color: #ff5555;
+  margin-bottom: 4px;
+}
 
-    .loading {
-      opacity: 0.6;
-      font-style: italic;
-    }
-  </style>
+/* Transkript */
+#transcript {
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+/* Ladezustand */
+.loading {
+  opacity: 0.6;
+  font-style: italic;
+}
+
+/* Desktop Anpassung */
+@media (min-width: 768px) {
+  .input-group {
+    flex-direction: row;
+  }
+
+  input {
+    width: 70%;
+  }
+
+  button {
+    width: auto;
+  }
+}
+</style>
 </head>
 
 <body>
@@ -84,11 +115,11 @@
 
     <h1>YouTube Kommentare + Transkript</h1>
 
-    <div>
-      <input id="url" placeholder="YouTube Link einfügen">
-      <button onclick="loadData()">Start</button>
-      <button onclick="copyAll()" style="margin-top:10px;">Alles kopieren</button>
-    </div>
+  <div class="input-group">
+  <input id="url" placeholder="YouTube Link einfügen">
+  <button onclick="loadData()">Start</button>
+  <button onclick="copyAll()">Alles kopieren</button>
+</div>
 
     <div class="box">
       <h2>Kommentare</h2>
