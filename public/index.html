@@ -106,6 +106,29 @@ button:hover {
   button {
     width: auto;
   }
+
+}
+
+  /* Button Gruppe */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.button-group button {
+  width: 100%;
+}
+
+/* Optional: Desktop etwas kompakter */
+@media (min-width: 768px) {
+  .button-group {
+    flex-direction: row;
+  }
+
+  .button-group button {
+    width: auto;
+  }
 }
 </style>
 </head>
@@ -113,12 +136,15 @@ button:hover {
 <body>
   <div class="container">
 
-    <h1>YouTube Kommentare & Transkript</h1>
+    <h1>YouTube Kommentare + Transkript</h1>
 
-  <div class="input-group">
-  <input id="url" placeholder="YouTube Link einfügen"><br>
-  <button onclick="loadData()">Start</button>
-  <button onclick="copyAll()">Alles kopieren</button>
+<div class="input-group">
+  <input id="url" placeholder="YouTube Link einfügen">
+
+  <div class="button-group">
+    <button onclick="loadData()">Start</button>
+    <button onclick="copyAll()">Alles kopieren</button>
+  </div>
 </div>
 
     <div class="box">
