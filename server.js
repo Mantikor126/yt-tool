@@ -33,13 +33,36 @@ function extractVideoId(url) {
 
 // Kommentare
 async function getComments(videoId) {
-  const url = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&maxResults=20&key=${API_KEY}`;
-  const res = await axios.get(url);
+  let allComments = [];
+  let nextPageToken = "";
 
-  return res.data.items.map(item => ({
-    author: item.snippet.topLevelComment.snippet.authorDisplayName,
-    text: item.snippet.topLevelComment.snippet.textDisplay
-  }));
+  try {
+    do {
+      const url = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&maxResults=100&pageToken=${nextPageToken}&key=${API_KEY}`;
+
+      const res = await axios.get(url);
+
+      const items = res.data.items || [];
+
+      allComments.push(
+        ...items.map(item => ({
+          author: item.snippet.topLevelComment.snippet.authorDisplayName,
+          text: item.snippet.topLevelComment.snippet.textDisplay
+        }))
+      );
+
+      nextPageToken = res.data.nextPageToken;
+
+      // ❗ Sicherheitslimit (sonst kann es ewig dauern)
+      if (allComments.length >= 200) break;
+
+    } while (nextPageToken);
+
+  } catch (e) {
+    console.log("Kommentar Fehler:", e.message);
+  }
+
+  return allComments;
 }
 
 // Transkript (SERPAPI)
