@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTube Tool</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    input {
+      width: 70%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #ff0000;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #cc0000;
+    }
+
+    .box {
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    #comments {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .comment {
+      border-bottom: 1px solid #333;
+      padding: 8px 0;
+    }
+
+    .author {
+      font-weight: bold;
+      color: #ff5555;
+    }
+
+    #transcript {
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+
+    .loading {
+      opacity: 0.6;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <h1>YouTube Kommentare + Transkript</h1>
+
+    <div>
+      <input id="url" placeholder="YouTube Link einfügen">
+      <button onclick="loadData()">Start</button>
+      <button onclick="copyAll()" style="margin-top:10px;">Alles kopieren</button>
+    </div>
+
+    <div class="box">
+      <h2>Kommentare</h2>
+      <div id="comments"></div>
+    </div>
+
+    <div class="box">
+      <h2>Transkript</h2>
+      <div id="transcript"></div>
+    </div>
+
+  </div>
+
+<script>
+async function loadData() {
+  const url = document.getElementById("url").value;
+
+  const commentsDiv = document.getElementById("comments");
+  const transcriptDiv = document.getElementById("transcript");
+
+  // Ladeanzeige
+  commentsDiv.innerHTML = "<p class='loading'>Lade Kommentare...</p>";
+  transcriptDiv.innerHTML = "<p class='loading'>Lade Transkript...</p>";
+
+  try {
+    const res = await fetch("/api", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({url})
+    });
+
+    const data = await res.json();
+
+    // Kommentare
+    commentsDiv.innerHTML = data.comments.map(c => `
+      <div class="comment">
+        <div class="author">${c.author}</div>
+        <div>${c.text}</div>
+      </div>
+    `).join("");
+
+    // Transkript
+    transcriptDiv.textContent = data.transcript;
+
+  } catch (e) {
+    commentsDiv.innerHTML = "Fehler beim Laden";
+    transcriptDiv.innerHTML = "Fehler beim Laden";
+  }
+}
+
+function copyAll() {
+  const comments = Array.from(document.querySelectorAll(".comment")).map(c => {
+    const author = c.querySelector(".author").innerText;
+    const text = c.querySelector("div:last-child").innerText;
+    return `${author}: ${text}`;
+  });
+
+  const transcript = document.getElementById("transcript").textContent;
+
+  const finalText = 
+`Neues Video neuer Kommentar.
+Kommentare bisher:
+${comments.join("\n")}
+
+Transkript:
+${transcript}`;
+
+  navigator.clipboard.writeText(finalText)
+    .then(() => alert("Kopiert!"))
+    .catch(() => alert("Fehler beim Kopieren"));
+}
+
+
+</script>
+
+</body>
+</html>
