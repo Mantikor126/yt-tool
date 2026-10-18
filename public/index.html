@@ -123,11 +123,14 @@ button:hover {
 <div class="input-group">
   <input id="url" placeholder="YouTube Link einfügen">
 
-  <div class="button-group">
-    <button onclick="loadData()">Start</button>
-    <button onclick="copyAll()">Alles kopieren</button>
-  </div>
+
+<div class="button-group">
+  <button onclick="loadData()">Start</button>
+  <button onclick="copyAll()">Alles kopieren</button>
+  <button onclick="copyComments()">Nur Kommentare kopieren</button>
+  <button onclick="copyTranscript()">Nur Transkript kopieren</button>
 </div>
+
 
     <div class="box">
       <h2>Kommentare</h2>
@@ -197,6 +200,30 @@ ${transcript}`;
 
   navigator.clipboard.writeText(finalText)
     .then(() => alert("Kopiert!"))
+    .catch(() => alert("Fehler beim Kopieren"));
+}
+
+function copyComments() {
+  const comments = Array.from(document.querySelectorAll(".comment")).map(c => {
+    const author = c.querySelector(".author").innerText;
+    const text = c.querySelector("div:last-child").innerText;
+    return `${author}: ${text}`;
+  });
+
+  const finalText = `Neues Video neuer Kommentar.
+Kommentare bisher:
+${comments.join("\n")}`;
+
+  navigator.clipboard.writeText(finalText)
+    .then(() => alert("Kommentare kopiert!"))
+    .catch(() => alert("Fehler beim Kopieren"));
+}
+
+function copyTranscript() {
+  const transcript = document.getElementById("transcript").textContent;
+
+  navigator.clipboard.writeText(transcript)
+    .then(() => alert("Transkript kopiert!"))
     .catch(() => alert("Fehler beim Kopieren"));
 }
 
