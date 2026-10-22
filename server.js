@@ -8,7 +8,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-const API_KEY = "AIzaSyCbSr5NyKYiuenW6fJbGW3v3VV4mIxmm48";
+const API_KEY = process.env.GOOGLE_API_KEY;
+
+if (!API_KEY) {
+  throw new Error("GOOGLE_API_KEY ist nicht konfiguriert.");
+}
 
 // Video-ID
 function extractVideoId(url) {
