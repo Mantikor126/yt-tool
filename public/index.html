@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -5,114 +6,123 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YouTube Tool</title>
 
-<style>
-  * {
-  box-sizing: border-box;
-}
-body {
-  font-family: Arial, sans-serif;
-  background: #121212;
-  color: #fff;
-  margin: 0;
-  padding: 10px;
-  overflow-x: hidden;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-h1 {
-  text-align: center;
-  font-size: 22px;
-}
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+      margin: 0;
+      padding: 10px;
+      overflow-x: hidden;
+    }
 
-/* Container */
-.container {
-  max-width: 900px;
-  margin: auto;
-}
+    h1 {
+      text-align: center;
+      font-size: 22px;
+    }
 
-/* Input + Button */
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+    h2 {
+      font-size: 20px;
+    }
 
-input {
-  width: 100%;
-  max-width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  font-size: 16px;
-}
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
 
-button {
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  background: #ff0000;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-}
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-button:hover {
-  background: #cc0000;
-}
+    input {
+      width: 100%;
+      max-width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+    }
 
-/* Boxen */
-.box {
-  background: #1e1e1e;
-  padding: 12px;
-  border-radius: 12px;
-  margin-top: 15px;
-}
+    button {
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #ff0000;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
 
-/* Kommentare */
-#comments {
-  max-height: 300px;
-  overflow-y: auto;
-}
+    button:hover:not(:disabled) {
+      background: #cc0000;
+    }
 
-.comment {
-  border-bottom: 1px solid #333;
-  padding: 10px 0;
-}
+    button:disabled {
+      background: #444;
+      color: #888;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
 
-.author {
-  font-weight: bold;
-  color: #ff5555;
-  margin-bottom: 4px;
-}
+    .box {
+      background: #1e1e1e;
+      padding: 12px;
+      border-radius: 12px;
+      margin-top: 15px;
+    }
 
-/* Transkript */
-#transcript {
-  max-height: 400px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  line-height: 1.6;
-  font-size: 15px;
-}
+    #comments {
+      max-height: 300px;
+      overflow-y: auto;
+    }
 
-/* Ladezustand */
-.loading {
-  opacity: 0.6;
-  font-style: italic;
-}
+    .comment {
+      border-bottom: 1px solid #333;
+      padding: 10px 0;
+    }
 
+    .author {
+      font-weight: bold;
+      color: #ff5555;
+      margin-bottom: 4px;
+    }
 
-  /* Button Gruppe */
-.button-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+    #transcript {
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      line-height: 1.6;
+      font-size: 15px;
+    }
 
-.button-group button {
-  width: 100%;
-}
+    .loading {
+      opacity: 0.6;
+      font-style: italic;
+    }
 
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-</style>
+    .button-group button {
+      width: 100%;
+    }
+
+    #status {
+      font-size: 14px;
+      color: #bbb;
+      margin-top: 5px;
+    }
+  </style>
 </head>
 
 <body>
@@ -120,17 +130,40 @@ button:hover {
 
     <h1>YouTube Kommentare + Transkript</h1>
 
-<div class="input-group">
-  <input id="url" placeholder="YouTube Link einfügen">
+    <div class="input-group">
+      <input
+        id="url"
+        type="text"
+        placeholder="YouTube Link einfügen"
+        autocomplete="off"
+      >
 
+      <div class="button-group">
+        <button onclick="pasteAndStart()">
+          Zwischenablage einfügen & starten
+        </button>
 
-<div class="button-group">
-  <button onclick="loadData()">Start</button>
-  <button onclick="copyAll()">Alles kopieren</button>
-  <button onclick="copyComments()">Nur Kommentare kopieren</button>
-  <button onclick="copyTranscript()">Nur Transkript kopieren</button>
-</div>
+        <button id="startButton" onclick="loadData()">
+          Start
+        </button>
 
+        <button id="copyAllButton" onclick="copyAll()" disabled>
+          Alles kopieren
+        </button>
+
+        <button id="copyCommentsButton" onclick="copyComments()" disabled>
+          Nur Kommentare kopieren
+        </button>
+
+        <button id="copyTranscriptButton" onclick="copyTranscript()" disabled>
+          Nur Transkript kopieren
+        </button>
+      </div>
+
+      <div id="status" aria-live="polite">
+        Füge einen YouTube-Link ein und drücke auf Start.
+      </div>
+    </div>
 
     <div class="box">
       <h2>Kommentare</h2>
@@ -144,91 +177,208 @@ button:hover {
 
   </div>
 
-<script>
-async function loadData() {
-  const url = document.getElementById("url").value;
+  <script>
+    const urlInput = document.getElementById("url");
+    const commentsDiv = document.getElementById("comments");
+    const transcriptDiv = document.getElementById("transcript");
+    const statusDiv = document.getElementById("status");
+    const startButton = document.getElementById("startButton");
 
-  const commentsDiv = document.getElementById("comments");
-  const transcriptDiv = document.getElementById("transcript");
+    const copyButtons = [
+      document.getElementById("copyAllButton"),
+      document.getElementById("copyCommentsButton"),
+      document.getElementById("copyTranscriptButton")
+    ];
 
-  // Ladeanzeige
-  commentsDiv.innerHTML = "<p class='loading'>Lade Kommentare...</p>";
-  transcriptDiv.innerHTML = "<p class='loading'>Lade Transkript...</p>";
+    let loadedUrl = "";
+    let isLoading = false;
 
-  try {
-    const res = await fetch("/api", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({url})
+    function setCopyButtonsEnabled(enabled) {
+      copyButtons.forEach(button => {
+        button.disabled = !enabled;
+      });
+    }
+
+    function invalidateLoadedData() {
+      loadedUrl = "";
+      setCopyButtonsEnabled(false);
+    }
+
+    // Bei einer Änderung des Links müssen die Daten neu geladen werden.
+    urlInput.addEventListener("input", () => {
+      invalidateLoadedData();
+      statusDiv.textContent = urlInput.value.trim()
+        ? "Link geändert. Drücke auf Start, um die Daten zu laden."
+        : "Füge einen YouTube-Link ein und drücke auf Start.";
     });
 
-    const data = await res.json();
+    async function pasteAndStart() {
+      try {
+        const clipboardText = await navigator.clipboard.readText();
+        const pastedUrl = clipboardText.trim();
 
-    // Kommentare
-    commentsDiv.innerHTML = data.comments.map(c => `
-      <div class="comment">
-        <div class="author">${c.author}</div>
-        <div>${c.text}</div>
-      </div>
-    `).join("");
+        if (!pastedUrl) {
+          statusDiv.textContent = "Die Zwischenablage ist leer.";
+          return;
+        }
 
-    // Transkript
-    transcriptDiv.textContent = data.transcript;
+        // Link einsetzen und direkt den Abruf starten.
+        urlInput.value = pastedUrl;
+        invalidateLoadedData();
+        await loadData();
 
-  } catch (e) {
-    commentsDiv.innerHTML = "Fehler beim Laden";
-    transcriptDiv.innerHTML = "Fehler beim Laden";
-  }
-}
+      } catch (error) {
+        statusDiv.textContent =
+          "Zwischenablage nicht lesbar. Bitte den Link manuell einfügen.";
+      }
+    }
 
-function copyAll() {
-  const comments = Array.from(document.querySelectorAll(".comment")).map(c => {
-    const author = c.querySelector(".author").innerText;
-    const text = c.querySelector("div:last-child").innerText;
-    return `${author}: ${text}`;
-  });
+    async function loadData() {
+      if (isLoading) return;
 
-  const transcript = document.getElementById("transcript").textContent;
+      const url = urlInput.value.trim();
 
-  const finalText = 
+      if (!url) {
+        statusDiv.textContent = "Bitte zuerst einen YouTube-Link einfügen.";
+        urlInput.focus();
+        return;
+      }
+
+      invalidateLoadedData();
+      isLoading = true;
+      startButton.disabled = true;
+
+      commentsDiv.innerHTML =
+        "<p class='loading'>Lade Kommentare...</p>";
+
+      transcriptDiv.textContent = "Lade Transkript...";
+      transcriptDiv.classList.add("loading");
+      statusDiv.textContent = "Daten werden geladen...";
+
+      try {
+        const res = await fetch("/api", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ url })
+        });
+
+        if (!res.ok) {
+          throw new Error("Serverfehler: " + res.status);
+        }
+
+        const data = await res.json();
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        const comments = Array.isArray(data.comments)
+          ? data.comments
+          : [];
+
+        const transcript = data.transcript || "";
+
+        // Kommentare anzeigen
+        commentsDiv.replaceChildren();
+
+        if (comments.length === 0) {
+          commentsDiv.textContent = "Keine Kommentare gefunden.";
+        } else {
+          comments.forEach(comment => {
+            const commentElement = document.createElement("div");
+            commentElement.className = "comment";
+
+            const authorElement = document.createElement("div");
+            authorElement.className = "author";
+            authorElement.textContent = comment.author || "Unbekannt";
+
+            const textElement = document.createElement("div");
+            textElement.textContent = comment.text || "";
+
+            commentElement.append(authorElement, textElement);
+            commentsDiv.appendChild(commentElement);
+          });
+        }
+
+        // Transkript anzeigen
+        transcriptDiv.classList.remove("loading");
+        transcriptDiv.textContent =
+          typeof transcript === "string"
+            ? transcript
+            : String(transcript);
+
+        // Kopieren erst nach erfolgreichem Abruf freigeben.
+        loadedUrl = url;
+        setCopyButtonsEnabled(true);
+        statusDiv.textContent = "Fertig! Du kannst die Inhalte jetzt kopieren.";
+
+      } catch (error) {
+        commentsDiv.textContent = "Fehler beim Laden der Kommentare.";
+        transcriptDiv.classList.remove("loading");
+        transcriptDiv.textContent = "Fehler beim Laden des Transkripts.";
+
+        statusDiv.textContent =
+          "Fehler beim Laden: " + error.message;
+
+        invalidateLoadedData();
+
+      } finally {
+        isLoading = false;
+        startButton.disabled = false;
+      }
+    }
+
+    function getCommentsText() {
+      return Array.from(document.querySelectorAll(".comment"))
+        .map(comment => {
+          const author = comment.querySelector(".author")?.innerText || "";
+          const text = comment.querySelector("div:last-child")?.innerText || "";
+          return `${author}: ${text}`;
+        })
+        .join("\n");
+    }
+
+    function getTranscriptText() {
+      return transcriptDiv.textContent || "";
+    }
+
+    async function copyText(text, successMessage) {
+      if (!loadedUrl || loadedUrl !== urlInput.value.trim()) {
+        statusDiv.textContent =
+          "Bitte zuerst den aktuellen Link laden.";
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        statusDiv.textContent = successMessage;
+      } catch (error) {
+        statusDiv.textContent =
+          "Kopieren fehlgeschlagen. Bitte die Browser-Berechtigung prüfen.";
+      }
+    }
+
+    function copyComments() {
+      copyText(getCommentsText(), "Kommentare wurden kopiert.");
+    }
+
+    function copyTranscript() {
+      copyText(getTranscriptText(), "Transkript wurde kopiert.");
+    }
+
+    function copyAll() {
+      const finalText =
 `Neues Video neuer Kommentar.
 Kommentare bisher:
-${comments.join("\n")}
+${getCommentsText()}
 
 Transkript:
-${transcript}`;
+${getTranscriptText()}`;
 
-  navigator.clipboard.writeText(finalText)
-    .then(() => alert("Kopiert!"))
-    .catch(() => alert("Fehler beim Kopieren"));
-}
-
-function copyComments() {
-  const comments = Array.from(document.querySelectorAll(".comment")).map(c => {
-    const author = c.querySelector(".author").innerText;
-    const text = c.querySelector("div:last-child").innerText;
-    return `${author}: ${text}`;
-  });
-
-  const finalText = `Neues Video neuer Kommentar.
-Kommentare bisher:
-${comments.join("\n")}`;
-
-  navigator.clipboard.writeText(finalText)
-    .then(() => alert("Kommentare kopiert!"))
-    .catch(() => alert("Fehler beim Kopieren"));
-}
-
-function copyTranscript() {
-  const transcript = document.getElementById("transcript").textContent;
-
-  navigator.clipboard.writeText(transcript)
-    .then(() => alert("Transkript kopiert!"))
-    .catch(() => alert("Fehler beim Kopieren"));
-}
-
-
-</script>
-
+      copyText(finalText, "Kommentare und Transkript wurden kopiert.");
+    }
+  </script>
 </body>
 </html>
