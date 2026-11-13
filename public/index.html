@@ -97,9 +97,34 @@
     #transcript {
       max-height: 400px;
       overflow-y: auto;
-      white-space: pre-wrap;
       line-height: 1.6;
       font-size: 15px;
+    }
+
+    .transcript-segment {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid #333;
+    }
+
+    .transcript-time {
+      flex: 0 0 auto;
+      color: #ff7777;
+      text-decoration: none;
+      font-weight: bold;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .transcript-time:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    .transcript-text {
+      min-width: 0;
+      white-space: pre-wrap;
     }
 
     .loading {
@@ -128,7 +153,7 @@
 <body>
   <div class="container">
 
-    <h1>YouTube Kommentare + Transkript</h1>
+    <h1>YouTube Kommentare & Transkript</h1>
 
     <div class="input-group">
       <input
@@ -278,7 +303,10 @@
           ? data.comments
           : [];
 
-        const transcript = data.transcript || "";
+        const transcript = Array.isArray(data.transcript)
+          ? data.transcript
+          : [];
+        const videoId = data.videoId;
 
         // Kommentare anzeigen
         commentsDiv.replaceChildren();
@@ -302,12 +330,9 @@
           });
         }
 
-        // Transkript anzeigen
+        // Transkript mit anklickbaren Zeitstempeln anzeigen.
+        renderTranscript(transcript, videoId);
         transcriptDiv.classList.remove("loading");
-        transcriptDiv.textContent =
-          typeof transcript === "string"
-            ? transcript
-            : String(transcript);
 
         // Kopieren erst nach erfolgreichem Abruf freigeben.
         loadedUrl = url;
@@ -340,8 +365,77 @@
         .join("\n");
     }
 
+    function renderTranscript(segments, videoId) {
+      transcriptDiv.replaceChildren();
+
+      if (!Array.isArray(segments) || segments.length === 0) {
+        transcriptDiv.textContent = "Kein Transkript verfügbar.";
+        return;
+      }
+
+      segments.forEach(segment => {
+        const row = document.createElement("div");
+        row.className = "transcript-segment";
+
+        const hasStartValue = segment.startMs !== null &&
+          segment.startMs !== undefined && segment.startMs !== "";
+        const startMs = hasStartValue ? Number(segment.startMs) : NaN;
+        const hasStartTime = Number.isFinite(startMs) && startMs >= 0;
+        const timestampText = segment.startTimeText ||
+          (hasStartTime ? formatTimestamp(startMs) : "");
+
+        if (hasStartTime && videoId) {
+          const timeLink = document.createElement("a");
+          timeLink.className = "transcript-time";
+          timeLink.href = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&t=${Math.floor(startMs / 1000)}s`;
+          timeLink.target = "_blank";
+          timeLink.rel = "noopener noreferrer";
+          timeLink.textContent = timestampText;
+          timeLink.title = `Video ab ${timestampText} öffnen`;
+          row.appendChild(timeLink);
+        } else if (timestampText) {
+          const timeLabel = document.createElement("span");
+          timeLabel.className = "transcript-time";
+          timeLabel.textContent = timestampText;
+          row.appendChild(timeLabel);
+        }
+
+        const text = document.createElement("span");
+        text.className = "transcript-text";
+        text.textContent = segment.text || "";
+        row.appendChild(text);
+
+        transcriptDiv.appendChild(row);
+      });
+    }
+
+    function formatTimestamp(milliseconds) {
+      const totalSeconds = Math.floor(milliseconds / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      if (hours > 0) {
+        return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+      }
+
+      return `${minutes}:${String(seconds).padStart(2, "0")}`;
+    }
+
     function getTranscriptText() {
-      return transcriptDiv.textContent || "";
+      const segments = Array.from(
+        transcriptDiv.querySelectorAll(".transcript-segment")
+      );
+
+      if (segments.length === 0) {
+        return transcriptDiv.textContent || "";
+      }
+
+      return segments.map(segment => {
+        const timestamp = segment.querySelector(".transcript-time")?.textContent || "";
+        const text = segment.querySelector(".transcript-text")?.textContent || "";
+        return timestamp ? `[${timestamp}] ${text}` : text;
+      }).join("\n");
     }
 
     async function copyText(text, successMessage) {
